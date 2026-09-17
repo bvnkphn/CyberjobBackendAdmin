@@ -114,7 +114,8 @@ async function main() {
     assert(response.json.items.length <= 20, "มีรายการเกินหน้า");
     assert(response.json.total > 0, "ไม่มีประกาศงานจาก seed");
     state.jobTotal = response.json.total;
-    state.firstJob = response.json.items[0];
+    // ประกาศที่ปิดอยู่ (เช่นฉบับร่างของผู้ประกอบการ) สมัครไม่ได้อยู่แล้ว จึงเลือกประกาศที่เปิดรับ
+    state.firstJob = response.json.items.find((item) => item.isActive) ?? response.json.items[0];
   });
 
   await check("pageSize ที่ไม่ได้อยู่ใน 20/50/100 ได้ 400", async () => {
