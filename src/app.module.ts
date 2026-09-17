@@ -1,7 +1,16 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { HealthController } from "./health.controller";
+import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
-@Module({ imports: [ConfigModule.forRoot({ isGlobal: true }), TypeOrmModule.forRootAsync({ inject: [ConfigService], useFactory: (config: ConfigService) => ({ type: "postgres", url: config.getOrThrow<string>("DATABASE_URL"), autoLoadEntities: true, synchronize: false, ssl: config.get("DB_SSL") === "true" ? { rejectUnauthorized: false } : false }) }), AuthModule], controllers: [HealthController] })
+import { HealthController } from "./health.controller";
+import { AdminJobsController } from "./jobs/admin-jobs.controller";
+import { AdminJobsService } from "./jobs/admin-jobs.service";
+import { PrismaModule } from "./prisma/prisma.module";
+import { AdminUsersController } from "./users/admin-users.controller";
+import { AdminUsersService } from "./users/admin-users.service";
+
+@Module({
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule],
+  controllers: [HealthController, AdminJobsController, AdminUsersController],
+  providers: [AdminJobsService, AdminUsersService],
+})
 export class AppModule {}
