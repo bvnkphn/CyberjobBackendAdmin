@@ -38,4 +38,20 @@ export class AdminSettingsController {
   testEmail(@Body(new ValidationPipe({ transform: true })) body: TestEmailDto) {
     return this.settings.testEmail(body.recipient);
   }
+
+  /** ดึงข้อมูลวิดีโอแนะนำการใช้งาน (Tutorial Videos) */
+  @Get("tutorials")
+  getTutorials() {
+    return this.settings.getTutorials();
+  }
+
+  /** อัปเดตข้อมูลและลิงก์วิดีโอแนะนำการใช้งาน */
+  @Patch("tutorials")
+  @UseGuards(AdminGuard)
+  updateTutorials(
+    @Body() body: { items: Array<{ id: string; videoUrl?: string; duration?: string; title?: string; titleEn?: string }> },
+  ) {
+    return this.settings.updateTutorials(body.items || []);
+  }
 }
+

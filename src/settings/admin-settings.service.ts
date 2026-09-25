@@ -107,4 +107,40 @@ export class AdminSettingsService {
       }
     );
   }
+
+  /** ดึงรายการ Tutorial Videos ทั้งหมด */
+  async getTutorials() {
+    try {
+      const rows = await this.prisma.$queryRaw<any[]>`
+        SELECT "id", "orderIndex", "title", "titleEn", "videoUrl", "duration", "updatedAt"
+        FROM "TutorialVideo"
+        ORDER BY "orderIndex" ASC
+      `;
+      return rows;
+    } catch (error) {
+      this.logger.error("Failed to fetch tutorials", error);
+      return [];
+    }
+  }
+
+  /** บันทึกรายการ Tutorial Videos */
+  async updateTutorials(items: Array<{ id: string; videoUrl?: string; duration?: string; title?: string; titleEn?: string }>) {
+    try {
+      for (const item of items) {
+        if (!item.id) continue;
+        await this.prisma.$executeRaw`
+          UPDATE "TutorialVideo"
+          SET "videoUrl" = ${item.videoUrl ?? ""},
+              "duration" = COALESCE(${item.duration ?? null}, "duration"),
+              "updatedAt" = NOW()
+          WHERE "id" = ${item.id}
+        `;
+      }
+      return { success: true, message: "บันทึกข้อมูลวิดีโอเรียบร้อยแล้ว" };
+    } catch (error) {
+      this.logger.error("Failed to update tutorials", error);
+      throw new BadRequestException("ไม่สามารถบันทึกข้อมูลวิดีโอได้");
+    }
+  }
 }
+
